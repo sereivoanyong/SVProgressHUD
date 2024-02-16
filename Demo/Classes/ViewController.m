@@ -145,13 +145,13 @@ static float progress = 0.0f;
     UISegmentedControl *segmentedControl = (UISegmentedControl*)sender;
     switch(segmentedControl.selectedSegmentIndex){
         case 0:
-            [SVProgressHUD setDefaultStyle:SVProgressHUDStyleLight];
+            [[SVProgressHUD sharedProgressHUD] setDefaultStyle:SVProgressHUDStyleLight];
             break;
         case 1:
-            [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
+            [[SVProgressHUD sharedProgressHUD] setDefaultStyle:SVProgressHUDStyleDark];
             break;
         case 2:
-            [SVProgressHUD setDefaultStyle:SVProgressHUDStyleAutomatic];
+            [[SVProgressHUD sharedProgressHUD] setDefaultStyle:SVProgressHUDStyleAutomatic];
             break;
     }
 }
@@ -159,25 +159,25 @@ static float progress = 0.0f;
 - (IBAction)changeAnimationType:(id)sender {
     UISegmentedControl *segmentedControl = (UISegmentedControl*)sender;
     if(segmentedControl.selectedSegmentIndex == 0){
-        [SVProgressHUD setDefaultAnimationType:SVProgressHUDAnimationTypeFlat];
+        [[SVProgressHUD sharedProgressHUD] setDefaultAnimationType:SVProgressHUDAnimationTypeFlat];
     } else {
-        [SVProgressHUD setDefaultAnimationType:SVProgressHUDAnimationTypeNative];
+        [[SVProgressHUD sharedProgressHUD] setDefaultAnimationType:SVProgressHUDAnimationTypeNative];
     }
 }
 
 - (IBAction)changeMaskType:(id)sender {
     UISegmentedControl *segmentedControl = (UISegmentedControl*)sender;
     if(segmentedControl.selectedSegmentIndex == 0){
-        [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeNone];
+        [[SVProgressHUD sharedProgressHUD] setDefaultMaskType:SVProgressHUDMaskTypeNone];
     } else if(segmentedControl.selectedSegmentIndex == 1){
-        [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeClear];
+        [[SVProgressHUD sharedProgressHUD] setDefaultMaskType:SVProgressHUDMaskTypeClear];
     } else if(segmentedControl.selectedSegmentIndex == 2){
-        [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeBlack];
+        [[SVProgressHUD sharedProgressHUD] setDefaultMaskType:SVProgressHUDMaskTypeBlack];
     } else if(segmentedControl.selectedSegmentIndex == 3){
-        [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeGradient];
+        [[SVProgressHUD sharedProgressHUD] setDefaultMaskType:SVProgressHUDMaskTypeGradient];
     } else {
-        [SVProgressHUD setBackgroundLayerColor:[[UIColor redColor] colorWithAlphaComponent:0.4]];
-        [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeCustom];
+        [[SVProgressHUD sharedProgressHUD] setBackgroundLayerColor:[[UIColor redColor] colorWithAlphaComponent:0.4]];
+        [[SVProgressHUD sharedProgressHUD] setDefaultMaskType:SVProgressHUDMaskTypeCustom];
     }
 }
 

@@ -11,18 +11,18 @@
 
 #import "SVProgressHUD.h"
 
-NSString * const SVProgressHUDDidReceiveTouchEventNotification = @"SVProgressHUDDidReceiveTouchEventNotification";
-NSString * const SVProgressHUDDidTouchDownInsideNotification = @"SVProgressHUDDidTouchDownInsideNotification";
-NSString * const SVProgressHUDWillDisappearNotification = @"SVProgressHUDWillDisappearNotification";
-NSString * const SVProgressHUDDidDisappearNotification = @"SVProgressHUDDidDisappearNotification";
-NSString * const SVProgressHUDWillAppearNotification = @"SVProgressHUDWillAppearNotification";
-NSString * const SVProgressHUDDidAppearNotification = @"SVProgressHUDDidAppearNotification";
+NSNotificationName const SVProgressHUDDidReceiveTouchEventNotification = @"SVProgressHUDDidReceiveTouchEventNotification";
+NSNotificationName const SVProgressHUDDidTouchDownInsideNotification = @"SVProgressHUDDidTouchDownInsideNotification";
+NSNotificationName const SVProgressHUDWillDisappearNotification = @"SVProgressHUDWillDisappearNotification";
+NSNotificationName const SVProgressHUDDidDisappearNotification = @"SVProgressHUDDidDisappearNotification";
+NSNotificationName const SVProgressHUDWillAppearNotification = @"SVProgressHUDWillAppearNotification";
+NSNotificationName const SVProgressHUDDidAppearNotification = @"SVProgressHUDDidAppearNotification";
 
 NSString * const SVProgressHUDStatusUserInfoKey = @"SVProgressHUDStatusUserInfoKey";
 
 static const CGFloat SVProgressHUDParallaxDepthPoints = 10.0f;
 static const CGFloat SVProgressHUDUndefinedProgress = -1;
-static const CGFloat SVProgressHUDDefaultAnimationDuration = 0.15f;
+static const NSTimeInterval SVProgressHUDDefaultAnimationDuration = 0.15f;
 static const CGFloat SVProgressHUDVerticalSpacing = 12.0f;
 static const CGFloat SVProgressHUDHorizontalSpacing = 12.0f;
 static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
@@ -48,7 +48,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 @property (nonatomic, readwrite) CGFloat progress;
 @property (nonatomic, readwrite) NSUInteger activityCount;
 
-@property (nonatomic, readonly) CGFloat visibleKeyboardHeight;
 @property (nonatomic, readonly) UIWindow *frontWindow;
 
 #if TARGET_OS_IOS
@@ -61,7 +60,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     BOOL _isInitializing;
 }
 
-+ (SVProgressHUD*)sharedView {
++ (SVProgressHUD *)sharedProgressHUD {
     static dispatch_once_t once;
     
     static SVProgressHUD *sharedView;
@@ -82,11 +81,11 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
             }
         }
         // If a window has not been returned by now, the first scene's window is returned (regardless of activationState).
-        UIWindowScene *windowScene = (UIWindowScene *)[[UIApplication sharedApplication].connectedScenes allObjects].firstObject;
+        UIWindowScene *windowScene = (UIWindowScene *)[UIApplication sharedApplication].connectedScenes.allObjects.firstObject;
         return windowScene.windows.firstObject;
     } else {
 #if TARGET_OS_IOS
-        return [[[UIApplication sharedApplication] delegate] window];
+        return [UIApplication sharedApplication].delegate.window;
 #else
         return [UIApplication sharedApplication].keyWindow;
 #endif
@@ -104,139 +103,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
      return [NSBundle bundleWithURL:url];
  }
 
-#pragma mark - Setters
-
-+ (void)setStatus:(NSString*)status {
-    [[self sharedView] setStatus:status];
-}
-
-+ (void)setDefaultStyle:(SVProgressHUDStyle)style {
-    [self sharedView].defaultStyle = style;
-}
-
-+ (void)setDefaultMaskType:(SVProgressHUDMaskType)maskType {
-    [self sharedView].defaultMaskType = maskType;
-}
-
-+ (void)setDefaultAnimationType:(SVProgressHUDAnimationType)type {
-    [self sharedView].defaultAnimationType = type;
-}
-
-+ (void)setContainerView:(nullable UIView*)containerView {
-    [self sharedView].containerView = containerView;
-}
-
-+ (void)setMinimumSize:(CGSize)minimumSize {
-    [self sharedView].minimumSize = minimumSize;
-}
-
-+ (void)setRingThickness:(CGFloat)ringThickness {
-    [self sharedView].ringThickness = ringThickness;
-}
-
-+ (void)setRingRadius:(CGFloat)radius {
-    [self sharedView].ringRadius = radius;
-}
-
-+ (void)setRingNoTextRadius:(CGFloat)radius {
-    [self sharedView].ringNoTextRadius = radius;
-}
-
-+ (void)setCornerRadius:(CGFloat)cornerRadius {
-    [self sharedView].cornerRadius = cornerRadius;
-}
-
-+ (void)setBorderColor:(nonnull UIColor*)color {
-    [self sharedView].hudView.layer.borderColor = color.CGColor;
-}
-
-+ (void)setBorderWidth:(CGFloat)width {
-    [self sharedView].hudView.layer.borderWidth = width;
-}
-
-+ (void)setFont:(UIFont*)font {
-    [self sharedView].font = font;
-}
-
-+ (void)setForegroundColor:(UIColor*)color {
-    [self sharedView].foregroundColor = color;
-    [self setDefaultStyle:SVProgressHUDStyleCustom];
-}
-
-+ (void)setForegroundImageColor:(UIColor *)color {
-    [self sharedView].foregroundImageColor = color;
-    [self setDefaultStyle:SVProgressHUDStyleCustom];
-}
-
-+ (void)setBackgroundColor:(UIColor*)color {
-    [self sharedView].backgroundColor = color;
-    [self setDefaultStyle:SVProgressHUDStyleCustom];
-}
-
-+ (void)setHudViewCustomBlurEffect:(UIBlurEffect*)blurEffect {
-    [self sharedView].hudViewCustomBlurEffect = blurEffect;
-    [self setDefaultStyle:SVProgressHUDStyleCustom];
-}
-
-+ (void)setBackgroundLayerColor:(UIColor*)color {
-    [self sharedView].backgroundLayerColor = color;
-}
-
-+ (void)setImageViewSize:(CGSize)size {
-    [self sharedView].imageViewSize = size;
-}
-
-+ (void)setShouldTintImages:(BOOL)shouldTintImages {
-    [self sharedView].shouldTintImages = shouldTintImages;
-}
-
-+ (void)setInfoImage:(UIImage*)image {
-    [self sharedView].infoImage = image;
-}
-
-+ (void)setSuccessImage:(UIImage*)image {
-    [self sharedView].successImage = image;
-}
-
-+ (void)setErrorImage:(UIImage*)image {
-    [self sharedView].errorImage = image;
-}
-
-+ (void)setViewForExtension:(UIView*)view {
-    [self sharedView].viewForExtension = view;
-}
-
-+ (void)setGraceTimeInterval:(NSTimeInterval)interval {
-    [self sharedView].graceTimeInterval = interval;
-}
-
-+ (void)setMinimumDismissTimeInterval:(NSTimeInterval)interval {
-    [self sharedView].minimumDismissTimeInterval = interval;
-}
-
-+ (void)setMaximumDismissTimeInterval:(NSTimeInterval)interval {
-    [self sharedView].maximumDismissTimeInterval = interval;
-}
-
-+ (void)setFadeInAnimationDuration:(NSTimeInterval)duration {
-    [self sharedView].fadeInAnimationDuration = duration;
-}
-
-+ (void)setFadeOutAnimationDuration:(NSTimeInterval)duration {
-    [self sharedView].fadeOutAnimationDuration = duration;
-}
-
-+ (void)setMaxSupportedWindowLevel:(UIWindowLevel)windowLevel {
-    [self sharedView].maxSupportedWindowLevel = windowLevel;
-}
-
-+ (void)setHapticsEnabled:(BOOL)hapticsEnabled {
-    [self sharedView].hapticsEnabled = hapticsEnabled;
-}
-
-+ (void)setMotionEffectEnabled:(BOOL)motionEffectEnabled {
-    [self sharedView].motionEffectEnabled = motionEffectEnabled;
-}
 
 #pragma mark - Show Methods
 
@@ -253,56 +119,56 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 }
 
 + (void)showProgress:(float)progress status:(NSString*)status {
-    [[self sharedView] showProgress:progress status:status];
+    [[self sharedProgressHUD] showProgress:progress status:status];
 }
 
 
 #pragma mark - Show, then automatically dismiss methods
 
 + (void)showInfoWithStatus:(NSString*)status {
-    [self showImage:[self sharedView].infoImage status:status];
+    [self showImage:[self sharedProgressHUD].infoImage status:status];
     
 #if TARGET_OS_IOS
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[self sharedView].hapticGenerator notificationOccurred:UINotificationFeedbackTypeWarning];
+        [[self sharedProgressHUD].hapticGenerator notificationOccurred:UINotificationFeedbackTypeWarning];
     });
 #endif
 }
 
 + (void)showSuccessWithStatus:(NSString*)status {
-    [self showImage:[self sharedView].successImage status:status];
+    [self showImage:[self sharedProgressHUD].successImage status:status];
 
 #if TARGET_OS_IOS
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[self sharedView].hapticGenerator notificationOccurred:UINotificationFeedbackTypeSuccess];
+        [[self sharedProgressHUD].hapticGenerator notificationOccurred:UINotificationFeedbackTypeSuccess];
     });
 #endif
 }
 
 + (void)showErrorWithStatus:(NSString*)status {
-    [self showImage:[self sharedView].errorImage status:status];
+    [self showImage:[self sharedProgressHUD].errorImage status:status];
     
 #if TARGET_OS_IOS
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[self sharedView].hapticGenerator notificationOccurred:UINotificationFeedbackTypeError];
+        [[self sharedProgressHUD].hapticGenerator notificationOccurred:UINotificationFeedbackTypeError];
     });
 #endif
 }
 
 + (void)showImage:(UIImage*)image status:(NSString*)status {
     NSTimeInterval displayInterval = [self displayDurationForString:status];
-    [[self sharedView] showImage:image status:status duration:displayInterval];
+    [[self sharedProgressHUD] showImage:image status:status duration:displayInterval];
 }
 
 
 #pragma mark - Dismiss Methods
 
 + (void)popActivity {
-    if([self sharedView].activityCount > 0) {
-        [self sharedView].activityCount--;
+    if([self sharedProgressHUD].activityCount > 0) {
+        [self sharedProgressHUD].activityCount--;
     }
-    if([self sharedView].activityCount == 0) {
-        [[self sharedView] dismiss];
+    if([self sharedProgressHUD].activityCount == 0) {
+        [[self sharedProgressHUD] dismiss];
     }
 }
 
@@ -310,7 +176,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     [self dismissWithDelay:0.0 completion:nil];
 }
 
-+ (void)dismissWithCompletion:(SVProgressHUDDismissCompletion)completion {
++ (void)dismissWithCompletion:(void (^)(void))completion {
     [self dismissWithDelay:0.0 completion:completion];
 }
 
@@ -318,19 +184,8 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     [self dismissWithDelay:delay completion:nil];
 }
 
-+ (void)dismissWithDelay:(NSTimeInterval)delay completion:(SVProgressHUDDismissCompletion)completion {
-    [[self sharedView] dismissWithDelay:delay completion:completion];
-}
-
-
-#pragma mark - Offset
-
-+ (void)setOffsetFromCenter:(UIOffset)offset {
-    [self sharedView].offsetFromCenter = offset;
-}
-
-+ (void)resetOffsetFromCenter {
-    [self setOffsetFromCenter:UIOffsetZero];
++ (void)dismissWithDelay:(NSTimeInterval)delay completion:(void (^)(void))completion {
+    [[self sharedProgressHUD] dismissWithDelay:delay completion:completion];
 }
 
 
@@ -384,7 +239,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 		
         _graceTimeInterval = 0.0f;
         _minimumDismissTimeInterval = 5.0;
-        _maximumDismissTimeInterval = CGFLOAT_MAX;
+        _maximumDismissTimeInterval = DBL_MAX;
 
         _fadeInAnimationDuration = SVProgressHUDDefaultAnimationDuration;
         _fadeOutAnimationDuration = SVProgressHUDDefaultAnimationDuration;
@@ -569,26 +424,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
                                              selector:@selector(positionHUD:)
                                                  name:UIApplicationDidChangeStatusBarOrientationNotification
                                                object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(positionHUD:)
-                                                 name:UIKeyboardWillHideNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(positionHUD:)
-                                                 name:UIKeyboardDidHideNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(positionHUD:)
-                                                 name:UIKeyboardWillShowNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(positionHUD:)
-                                                 name:UIKeyboardDidShowNotification
-                                               object:nil];
 #endif
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(positionHUD:)
@@ -601,8 +436,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 }
 
 - (void)positionHUD:(NSNotification*)notification {
-    CGFloat keyboardHeight = 0.0f;
-    double animationDuration = 0.0;
+    NSTimeInterval animationDuration = 0.0;
 
 #if !defined(SV_APP_EXTENSIONS) && TARGET_OS_IOS
     self.frame =  [SVProgressHUD mainWindow].bounds;
@@ -620,33 +454,8 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 #endif
 #endif
     
-#if TARGET_OS_IOS
-    // Get keyboardHeight in regard to current state
-    if(notification) {
-        NSDictionary* keyboardInfo = [notification userInfo];
-        CGRect keyboardFrame = [keyboardInfo[UIKeyboardFrameBeginUserInfoKey] CGRectValue];
-        animationDuration = [keyboardInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-        
-        if(notification.name == UIKeyboardWillShowNotification || notification.name == UIKeyboardDidShowNotification) {
-            keyboardHeight = CGRectGetWidth(keyboardFrame);
-            
-            if(UIInterfaceOrientationIsPortrait(orientation)) {
-                keyboardHeight = CGRectGetHeight(keyboardFrame);
-            }
-        }
-    } else {
-        keyboardHeight = self.visibleKeyboardHeight;
-    }
-#endif
-    
     // Get the currently active frame of the display (depends on orientation)
-    CGRect orientationFrame = self.bounds;
-
-#if !defined(SV_APP_EXTENSIONS) && TARGET_OS_IOS
-    CGRect statusBarFrame = UIApplication.sharedApplication.statusBarFrame;
-#else
-    CGRect statusBarFrame = CGRectZero;
-#endif
+    CGRect orientationFrame = UIEdgeInsetsInsetRect(self.bounds, self.safeAreaInsets);
     
     if (_motionEffectEnabled) {
 #if TARGET_OS_IOS
@@ -656,16 +465,9 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
         [self updateMotionEffectForXMotionEffectType:UIInterpolatingMotionEffectTypeTiltAlongHorizontalAxis yMotionEffectType:UIInterpolatingMotionEffectTypeTiltAlongHorizontalAxis];
 #endif
     }
-    
-    // Calculate available height for display
-    CGFloat activeHeight = CGRectGetHeight(orientationFrame);
-    if(keyboardHeight > 0) {
-        activeHeight += CGRectGetHeight(statusBarFrame) * 2;
-    }
-    activeHeight -= keyboardHeight;
-    
+
     CGFloat posX = CGRectGetMidX(orientationFrame);
-    CGFloat posY = floorf(activeHeight*0.45f);
+    CGFloat posY = CGRectGetMidY(orientationFrame);
 
     CGFloat rotateAngle = 0.0;
     CGPoint newCenter = CGPointMake(posX, posY);
@@ -941,7 +743,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     [self dismissWithDelay:0.0 completion:nil];
 }
 
-- (void)dismissWithDelay:(NSTimeInterval)delay completion:(SVProgressHUDDismissCompletion)completion {
+- (void)dismissWithDelay:(NSTimeInterval)delay completion:(void (^)(void))completion {
     __weak SVProgressHUD *weakSelf = self;
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         __strong SVProgressHUD *strongSelf = weakSelf;
@@ -1129,15 +931,15 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 
 + (BOOL)isVisible {
     // Checking one alpha value is sufficient as they are all the same
-    return [self sharedView].backgroundView.alpha > 0.0f;
+    return [self sharedProgressHUD].backgroundView.alpha > 0.0f;
 }
 
 
 #pragma mark - Getters
 
 + (NSTimeInterval)displayDurationForString:(NSString*)string {
-    CGFloat minimum = MAX((CGFloat)string.length * 0.06 + 0.5, [self sharedView].minimumDismissTimeInterval);
-    return MIN(minimum, [self sharedView].maximumDismissTimeInterval);
+    CGFloat minimum = MAX((CGFloat)string.length * 0.06 + 0.5, [self sharedProgressHUD].minimumDismissTimeInterval);
+    return MIN(minimum, [self sharedProgressHUD].maximumDismissTimeInterval);
 }
 
 - (UIColor*)foregroundColorForStyle {
@@ -1228,10 +1030,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     }
     if(_backgroundRadialGradientLayer){
         _backgroundRadialGradientLayer.frame = self.bounds;
-        
-        // Calculate the new center of the gradient, it may change if keyboard is visible
         CGPoint gradientCenter = self.center;
-        gradientCenter.y = (self.bounds.size.height - self.visibleKeyboardHeight)/2;
         _backgroundRadialGradientLayer.gradientCenter = gradientCenter;
         [_backgroundRadialGradientLayer setNeedsDisplay];
     }
@@ -1300,39 +1099,6 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     }
     
     return self.defaultStyle;
-}
-
-- (CGFloat)visibleKeyboardHeight {
-#if !defined(SV_APP_EXTENSIONS)
-    UIWindow *keyboardWindow = nil;
-    for (UIWindow *testWindow in UIApplication.sharedApplication.windows) {
-        if(![testWindow.class isEqual:UIWindow.class]) {
-            keyboardWindow = testWindow;
-            break;
-        }
-    }
-    
-    for (__strong UIView *possibleKeyboard in keyboardWindow.subviews) {
-        NSString *viewName = NSStringFromClass(possibleKeyboard.class);
-        if([viewName hasPrefix:@"UI"]){
-            if([viewName hasSuffix:@"PeripheralHostView"] || [viewName hasSuffix:@"Keyboard"]){
-                return CGRectGetHeight(possibleKeyboard.bounds);
-            } else if ([viewName hasSuffix:@"InputSetContainerView"]){
-                for (__strong UIView *possibleKeyboardSubview in possibleKeyboard.subviews) {
-                    viewName = NSStringFromClass(possibleKeyboardSubview.class);
-                    if([viewName hasPrefix:@"UI"] && [viewName hasSuffix:@"InputSetHostView"]) {
-                        CGRect convertedRect = [possibleKeyboard convertRect:possibleKeyboardSubview.frame toView:self];
-                        CGRect intersectedRect = CGRectIntersection(convertedRect, self.bounds);
-                        if (!CGRectIsNull(intersectedRect)) {
-                            return CGRectGetHeight(intersectedRect);
-                        }
-                    }
-                }
-            }
-        }
-    }
-#endif
-    return 0;
 }
     
 - (UIWindow *)frontWindow {
