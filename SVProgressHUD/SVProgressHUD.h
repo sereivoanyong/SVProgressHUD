@@ -7,6 +7,9 @@
 
 #import <UIKit/UIKit.h>
 #import <AvailabilityMacros.h>
+#import "SVIndefiniteAnimatedView.h"
+#import "SVProgressAnimatedView.h"
+#import "SVRadialGradientLayer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

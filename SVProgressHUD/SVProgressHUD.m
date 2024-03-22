@@ -10,9 +10,6 @@
 #endif
 
 #import "SVProgressHUD.h"
-#import "SVIndefiniteAnimatedView.h"
-#import "SVProgressAnimatedView.h"
-#import "SVRadialGradientLayer.h"
 
 NSNotificationName const SVProgressHUDDidReceiveTouchEventNotification = @"SVProgressHUDDidReceiveTouchEventNotification";
 NSNotificationName const SVProgressHUDDidTouchDownInsideNotification = @"SVProgressHUDDidTouchDownInsideNotification";
