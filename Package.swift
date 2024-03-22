@@ -1,5 +1,5 @@
-// swift-tools-version:5.9
- 
+// swift-tools-version:5.10
+
 import PackageDescription
 
 let package = Package(
@@ -17,9 +17,8 @@ let package = Package(
     targets: [
         .target(
             name: "SVProgressHUD",
-            dependencies: [],
             path: "SVProgressHUD",
-            exclude: ["SVProgressHUD-Prefix.pch", "PrivacyInfo.xcprivacy"],
+            exclude: ["SVProgressHUD-Prefix.pch"],
             resources: [
                 .copy("SVProgressHUD.bundle"),
                 .copy("PrivacyInfo.xcprivacy")
